@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jan 17 16:58:51 2021
+Created on Sun Jan 17 12:13:17 2021
 
 @author: ashwincs
 """
@@ -10,8 +10,6 @@ import matplotlib.pyplot as plt # plotting
 import numpy as np # linear algebra
 #from numpy import linspace, max, min, average, std, sum, sqrt, where, argmax
 import scipy.io
-import scipy as sp
-from scipy import signal
 
 #loading mat file
 mat = scipy.io.loadmat('C:/Users/kamalcs/Documents/project/datasets/set3/s1_1kg.mat')
@@ -31,57 +29,51 @@ for i in data:
 emg_biceps = np.array(emg_biceps)
 emg_triceps = np.array(emg_triceps)
 
+
 #Loading time w.r.t sampling freq = 10000
 fs = 10000    
 #time = np.array([i/fs for i in range(0, len(emg_biceps), 1)])
 time = np.linspace(0, len(emg_biceps) / fs, len(emg_biceps))
 
-# process EMG signal: remove mean
-emg_biceps_meancorrected = emg_biceps - np.mean(emg_biceps)
-emg_triceps_meancorrected = emg_triceps - np.mean(emg_triceps)
 
-# create bandpass filter for EMG
-high = 20/(fs/2)
-low = 350/(fs/2)
-b, a = sp.signal.butter(4, [high,low], btype='bandpass')
+rms_biceps = []
+rms_triceps = []
+t = 3
+samples = int(t * fs) 
+start = 0
+end = samples
 
-# process EMG signal: filter EMG
-emg_biceps_filtered = sp.signal.filtfilt(b, a, emg_biceps_meancorrected)
-emg_triceps_filtered = sp.signal.filtfilt(b, a, emg_triceps_meancorrected)
+for i in range(0, len(emg_biceps), samples) :
+    rms_biceps.append(np.sqrt(np.sum(np.square(emg_biceps[start:end]) ) / len(emg_biceps)))
+    rms_triceps.append(np.sqrt(np.sum(np.square(emg_triceps[start:end])) / len(emg_triceps)))
+    start = start + samples
+    end = end + samples
 
+k = 0
+rms_biceps1 = []
+rms_triceps1 = []
 
-#plotting
+for i in range(1, len(emg_biceps)+1):
+    rms_biceps1.append(rms_biceps[k])
+    rms_triceps1.append(rms_triceps[k])
+    if i % samples == 0 :
+        k = k + 1
+
 fig = plt.figure()
-plt.subplot(2, 2, 1)
-plt.subplot(2, 2, 1).set_title('Biceps')
+plt.subplot(2, 1, 1)
+plt.subplot(2, 1, 1).set_title('Biceps')
 plt.plot(time, emg_biceps, label = "sEMG")
+plt.plot(time, rms_biceps1, label = "RMS")
 plt.locator_params(axis='x', nbins=20)
 plt.locator_params(axis='y', nbins=20)
 plt.xlabel('Time (sec)')
 plt.ylabel('EMG (a.u.)')
 plt.grid(True, color = "grey")#, linewidth = "1.4", linestyle = "-.") 
 
-plt.subplot(2, 2, 2)
-plt.subplot(2, 2, 2).set_title('emg_biceps_filtered')
-plt.plot(time, emg_biceps_filtered, label = "sEMG")
-plt.locator_params(axis='x', nbins=20)
-plt.locator_params(axis='y', nbins=20)
-plt.xlabel('Time (sec)')
-plt.ylabel('EMG (a.u.)')
-plt.grid(True, color = "grey")#, linewidth = "1.4", linestyle = "-.") 
-
-plt.subplot(2, 2, 3)
-plt.subplot(2, 2, 3).set_title('Triceps')
+plt.subplot(2, 1, 2)
+plt.subplot(2, 1, 2).set_title('Triceps')
 plt.plot(time, emg_triceps, label = "sEMG")
-plt.locator_params(axis='x', nbins=20)
-plt.locator_params(axis='y', nbins=20)
-plt.xlabel('Time (sec)')
-plt.ylabel('EMG (a.u.)')
-plt.grid(True, color = "grey")#, linewidth = "1.4", linestyle = "-.") 
-
-plt.subplot(2, 2, 4)
-plt.subplot(2, 2, 4).set_title('emg_triceps_filtered')
-plt.plot(time, emg_triceps_filtered, label = "sEMG")
+plt.plot(time, rms_triceps1, label = "RMS")
 plt.locator_params(axis='x', nbins=20)
 plt.locator_params(axis='y', nbins=20)
 plt.xlabel('Time (sec)')
@@ -92,6 +84,15 @@ plt.legend()
 plt.show()
 
 fig.tight_layout()
-fig_name = 'fig_filtered.png'
-fig.set_size_inches(w=11,h=10)
+fig_name = 'fig2.png'
+fig.set_size_inches(w=11,h=7)
 fig.savefig(fig_name)
+
+'''
+rms_biceps.append(np.sqrt(np.sum(np.square(emg_biceps[start:end]) ) / len(emg_biceps)))
+rms_triceps.append(np.sqrt(np.sum(np.square(emg_triceps[start:end])) / len(emg_triceps)))
+
+for i in range(len(emg_biceps)-1):
+    rms_biceps.append(rms_biceps[0])
+    rms_triceps.append(rms_triceps[0])
+'''

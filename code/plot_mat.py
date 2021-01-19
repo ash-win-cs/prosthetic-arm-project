@@ -39,6 +39,7 @@ plt.locator_params(axis='x', nbins=4)
 plt.locator_params(axis='y', nbins=4)
 plt.xlabel('Time (sec)')
 plt.ylabel('EMG (a.u.)')
+plt.grid(True, color = "grey", linewidth = "1.4", linestyle = "-.") 
 
 plt.subplot(2, 1, 2)
 plt.subplot(2, 1, 2).set_title('Biceps')
@@ -47,28 +48,19 @@ plt.locator_params(axis='x', nbins=4)
 plt.locator_params(axis='y', nbins=4)
 plt.xlabel('Time (sec)')
 plt.ylabel('EMG (a.u.)')
+plt.grid(True, color = "grey", linewidth = "1.4", linestyle = "-.") 
 
 fig.tight_layout()
 fig_name = 'fig2.png'
 fig.set_size_inches(w=11,h=7)
 fig.savefig(fig_name)
 
+xmin, xmax = plt.xlim()
+ymin, ymax = plt.ylim()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+scale_factor = 20
+plt.plot(time, emg1)
+plt.locator_params(axis='x', nbins=10)
+plt.locator_params(axis='y', nbins=20)
+plt.xlim(xmin / scale_factor, xmax / scale_factor)
+plt.ylim(ymin / scale_factor, ymax / scale_factor)

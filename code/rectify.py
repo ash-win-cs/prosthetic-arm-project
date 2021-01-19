@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jan 17 16:58:51 2021
+Created on Sun Jan 17 17:39:08 2021
 
-@author: ashwincs
+@author: kamalcs
 """
 
 #importing libraries
@@ -50,38 +50,78 @@ emg_biceps_filtered = sp.signal.filtfilt(b, a, emg_biceps_meancorrected)
 emg_triceps_filtered = sp.signal.filtfilt(b, a, emg_triceps_meancorrected)
 
 
+emg_biceps_rectified = abs(emg_biceps_filtered)
+emg_triceps_rectified = abs(emg_triceps_filtered)
+
+
 #plotting
 fig = plt.figure()
-plt.subplot(2, 2, 1)
-plt.subplot(2, 2, 1).set_title('Biceps')
-plt.plot(time, emg_biceps, label = "sEMG")
+plt.subplot(2, 1, 1)
+plt.subplot(2, 1, 1).set_title('Biceps Rectified')
+plt.plot(time, emg_biceps_rectified, label = "sEMG")
 plt.locator_params(axis='x', nbins=20)
 plt.locator_params(axis='y', nbins=20)
 plt.xlabel('Time (sec)')
 plt.ylabel('EMG (a.u.)')
 plt.grid(True, color = "grey")#, linewidth = "1.4", linestyle = "-.") 
 
-plt.subplot(2, 2, 2)
-plt.subplot(2, 2, 2).set_title('emg_biceps_filtered')
-plt.plot(time, emg_biceps_filtered, label = "sEMG")
+plt.subplot(2, 1, 2)
+plt.subplot(2, 1, 2).set_title('Triceps Rectified')
+plt.plot(time, emg_triceps_rectified, label = "sEMG")
 plt.locator_params(axis='x', nbins=20)
 plt.locator_params(axis='y', nbins=20)
 plt.xlabel('Time (sec)')
 plt.ylabel('EMG (a.u.)')
 plt.grid(True, color = "grey")#, linewidth = "1.4", linestyle = "-.") 
 
-plt.subplot(2, 2, 3)
-plt.subplot(2, 2, 3).set_title('Triceps')
-plt.plot(time, emg_triceps, label = "sEMG")
+
+plt.legend()
+plt.show()
+
+fig.tight_layout()
+fig_name = 'fig_rectified.png'
+fig.set_size_inches(w=11,h=10)
+fig.savefig(fig_name)
+
+#taking rms and plotting
+rms_biceps = []
+rms_triceps = []
+t = 3
+samples = int(t * fs) 
+start = 0
+end = samples
+
+for i in range(0, len(emg_biceps_rectified), samples) :
+    rms_biceps.append(np.sqrt(np.sum(np.square(emg_biceps_rectified[start:end]) ) / len(emg_biceps_rectified)))
+    rms_triceps.append(np.sqrt(np.sum(np.square(emg_triceps_rectified[start:end])) / len(emg_triceps_rectified)))
+    start = start + samples
+    end = end + samples
+
+k = 0
+rms_biceps1 = []
+rms_triceps1 = []
+
+for i in range(1, len(emg_biceps_rectified)+1):
+    rms_biceps1.append(rms_biceps[k])
+    rms_triceps1.append(rms_triceps[k])
+    if i % samples == 0 :
+        k = k + 1
+
+fig = plt.figure()
+plt.subplot(2, 1, 1)
+plt.subplot(2, 1, 1).set_title('Biceps')
+plt.plot(time, emg_biceps_rectified, label = "sEMG")
+plt.plot(time, rms_biceps1, label = "RMS")
 plt.locator_params(axis='x', nbins=20)
 plt.locator_params(axis='y', nbins=20)
 plt.xlabel('Time (sec)')
 plt.ylabel('EMG (a.u.)')
 plt.grid(True, color = "grey")#, linewidth = "1.4", linestyle = "-.") 
 
-plt.subplot(2, 2, 4)
-plt.subplot(2, 2, 4).set_title('emg_triceps_filtered')
-plt.plot(time, emg_triceps_filtered, label = "sEMG")
+plt.subplot(2, 1, 2)
+plt.subplot(2, 1, 2).set_title('Triceps')
+plt.plot(time, emg_triceps_rectified, label = "sEMG")
+plt.plot(time, rms_triceps1, label = "RMS")
 plt.locator_params(axis='x', nbins=20)
 plt.locator_params(axis='y', nbins=20)
 plt.xlabel('Time (sec)')
@@ -92,6 +132,6 @@ plt.legend()
 plt.show()
 
 fig.tight_layout()
-fig_name = 'fig_filtered.png'
-fig.set_size_inches(w=11,h=10)
+fig_name = 'rectified_rms.png'
+fig.set_size_inches(w=11,h=7)
 fig.savefig(fig_name)
